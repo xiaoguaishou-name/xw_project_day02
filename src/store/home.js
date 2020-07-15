@@ -1,13 +1,21 @@
-import {reqCategoryList} from '@/api'
+import {reqCategoryList,reqBannerList,reqFloorList} from '@/api'
 
 
 const state = {
-  categoryList : []
+  categoryList: [],
+  bannerList: [],
+  floorList:[]
 }
 const mutations = {
   RECEIVECATEGORYLIST(state, categoryList) {
     state.categoryList = categoryList
-  }
+  },
+  RECEIVEBANNERLIST(state, bannerList) {
+    state.bannerList = bannerList
+  },
+  RECEIVEFLOORLIST(state, floorList) {
+    state.floorList = floorList
+  },
 }
 const actions = {
   async getCategoryList({ commit }) {
@@ -15,9 +23,32 @@ const actions = {
     if (result.code === 200) {
       commit('RECEIVECATEGORYLIST', result.data)
     }
+  },
+   async getBannerList({
+     commit
+   }) {
+     const result = await reqBannerList()
+     if (result.code === 200) {
+       commit('RECEIVEBANNERLIST', result.data)
+     }
+  },
+   async getFloorList({
+     commit
+   }) {
+     const result = await reqFloorList()
+     if (result.code === 200) {
+       commit('RECEIVEFLOORLIST', result.data)
+     }
+   },
+}
+const getters = {
+  bannerList(state) {
+    return state.bannerList
+  },
+  floorList(state) {
+    return state.floorList
   }
 }
-const getters = {}
 
 export default ({
   state,

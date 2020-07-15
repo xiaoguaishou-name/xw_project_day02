@@ -5,13 +5,13 @@
     <Recommend></Recommend>
     <Rank></Rank>
     <Like></Like>
-    <Floor></Floor>
-    <Floor></Floor>
+    <Floor v-for="(floor,index) in floorList" :key="floor.id" :floor="floor"></Floor>
     <Brand></Brand>
   </div>
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
 import Container from '@/pages/Home/Container'
 import Recommend from '@/pages/Home/Recommend'
 import Rank from './Rank'
@@ -27,6 +27,17 @@ import Brand from './Brand'
       Like,
       Floor,
       Brand
+    },
+    mounted(){
+      this.getFloorList()
+    },
+    methods:{
+      getFloorList(){
+        this.$store.dispatch('getFloorList')
+      }
+    },
+    computed:{
+      ...mapGetters(['floorList'])
     }
   }
 </script>

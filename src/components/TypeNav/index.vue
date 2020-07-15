@@ -2,7 +2,60 @@
   <!-- 商品分类导航 -->
   <div class="type-nav">
     <div class="container">
-      <h2 class="all">全部商品分类</h2>
+      <div @mouseleave="moveOut" @mouseenter="isShow = true">
+        <h2 class="all">全部商品分类</h2>
+        <transition name="show">
+          <div class="sort" v-show="isShow">
+            <div class="all-sort-list2" @click="toSearch">
+              <div
+                class="item"
+                v-for="(c1,index) in categoryList"
+                :key="c1.categoryId"
+                @mouseenter="moveIn(index)"
+                :class="{item_on:currentIndex === index}"
+              >
+                <h3>
+                  <a
+                    href="javascript:;"
+                    :data-category1Id="c1.categoryId"
+                    :data-categoryName="c1.categoryName"
+                  >{{c1.categoryName}}</a>
+                  <!-- 为什么不适用声明式导航，因为一次性创建了多个组件对象，导致页面卡的一批 -->
+                  <!-- <a href="javascript:;" @click="$router.push({name:'search',query:{categoryName:c1.categoryName,category1Id:c1.categoryId}})">{{c1.categoryName}}</a> -->
+                  <!-- <router-link :to="{name:'search',query:{categoryName:c1.categoryName,category1Id:c1.categoryId}}">{{c1.categoryName}}</router-link> -->
+                </h3>
+                <div class="item-list clearfix">
+                  <div class="subitem">
+                    <dl class="fore" v-for="(c2,index) in c1.categoryChild" :key="c2.categoryId">
+                      <dt>
+                        <a
+                          href="javascript:;"
+                          :data-category1Id="c2.categoryId"
+                          :data-categoryName="c2.categoryName"
+                        >{{c2.categoryName}}</a>
+                        <!-- 使用编程式导航，但效率还是不高，因为每个类别都添加了相同的点击事件，每个点击事件都有自己的回调函数 ，使用事件委派来处理-->
+                        <!-- <a href="javascript:;" @click="$router.push({name:'search',query:{categoryName:c2.categoryName,category2Id:c2.categoryId}})">{{c2.categoryName}}</a> -->
+                        <!-- <router-link :to="{name:'search',query:{categoryName:c2.categoryName,category2Id:c2.categoryId}}">{{c2.categoryName}}</router-link> -->
+                      </dt>
+                      <dd>
+                        <em v-for="(c3,index) in c2.categoryChild" :key="c3.categoryId">
+                          <a
+                            href="javascript:;"
+                            :data-category1Id="c3.categoryId"
+                            :data-categoryName="c3.categoryName"
+                          >{{c3.categoryName}}</a>
+                          <!-- <a href="javascript:;" @click="$router.push({name:'search',query:{categoryName:c3.categoryName,category3Id:c3.categoryId}})">{{c3.categoryName}}</a> -->
+                          <!-- <router-link :to="{name:'search',query:{categoryName:c3.categoryName,category3Id:c3.categoryId}}">{{c3.categoryName}}</router-link> -->
+                        </em>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
       <nav class="nav">
         <a href="###">服装城</a>
         <a href="###">美妆馆</a>
@@ -13,48 +66,77 @@
         <a href="###">有趣</a>
         <a href="###">秒杀</a>
       </nav>
-      <div class="sort">
-        <div class="all-sort-list2">
-          <div class="item" v-for="(c1,index) in categoryList" :key="c1.categoryId">
-            <h3>
-              <a href>{{c1.categoryName}}</a>
-            </h3>
-            <div class="item-list clearfix">
-              <div class="subitem">
-                <dl class="fore" v-for="(c2,index) in c1.categoryChild" :key="c2.categoryId">
-                  <dt>
-                    <a href>{{c2.categoryName}}</a>
-                  </dt>
-                  <dd>
-                    <em v-for="(c3,index) in c2.categoryChild" :key="c3.categoryId">
-                      <a href>{{c3.categoryName}}</a>
-                    </em>
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import { mapState } from "vuex";
+// import _ from 'lodash'//引入整体，打包体积大
+import throttle from "lodash/throttle"; //只引入节流功能
 export default {
   name: "TypeNav",
-  mounted(){
-    this.getCategoryList()
+  data() {
+    return {
+      currentIndex: -1,
+      isShow: true
+    };
   },
-  methods:{
-    getCategoryList(){
-      this.$store.dispatch('getCategoryList')
+  mounted() {
+    if (this.$route.path !== "/home") {
+      this.isShow = false;
     }
   },
-  computed:{
+  methods: {
+    // getCategoryList() {
+    //   this.$store.dispatch("getCategoryList");
+    // },
+    // moveIn(index) {
+    //   this.currentIndex = index;
+    // },
+    moveIn: throttle(
+      function(index) {
+        this.currentIndex = index;
+      },
+      50,
+      { trailing: false }
+    ), //最后一个参数代表是否延迟触发，如果不写，默认是true
+    moveOut() {
+      this.currentIndex = -1;
+      if (this.$route.path !== "/home") {
+        this.isShow = false;
+      }
+    },
+    toSearch(event) {
+      let data = event.target.dataset; //拿到元素身上所有自定义属性组成的一个对象
+      let { categoryname, category1id, category2id, category3id } = data;
+      if (categoryname) {
+        let location = {
+          name: "search"
+        };
+        let query = {};
+        // 点的是a标签
+        query.categoryName = categoryname;
+        if (category1id) {
+          query.category1Id = category1id;
+        } else if (category2id) {
+          query.category2Id = category2id;
+        } else {
+          query.category3Id = category3id;
+        }
+        location.query = query;
+        // 点击三级分类的时候，也要关注是否有params参数
+        let { params } = this.$route;
+        if (params) {
+          location.params = params;
+        }
+        this.$router.push(location);
+      }
+    }
+  },
+  computed: {
     ...mapState({
-      categoryList : state => state.home.categoryList
+      categoryList: state => state.home.categoryList
     })
   }
 };
@@ -100,7 +182,13 @@ export default {
       position: absolute;
       background: #fafafa;
       z-index: 999;
-
+      &.show-enter {
+        height: 0;
+        opacity: 0;
+      }
+      &.show-enter-active {
+        transition: all 2s;
+      }
       .all-sort-list2 {
         .item {
           h3 {
@@ -170,7 +258,7 @@ export default {
             }
           }
 
-          &:hover {
+          &.item_on {
             background-image: linear-gradient(120deg, #a6c0fe 0%, #f68084 100%);
             .item-list {
               display: block;

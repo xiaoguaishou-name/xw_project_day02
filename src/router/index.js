@@ -29,10 +29,10 @@ export default new VueRouter({
       path: '/search/:keyword?',
       component: Search,
       name: 'search',
-      props: route => ({
-        keyword: route.params.keyword,
-        keyword1: route.query.keyword1
-      })
+      // props: route => ({
+      //   keyword: route.params.keyword,
+      //   keyword1: route.query.keyword1
+      // })
     },
     {
       path: '/',
@@ -46,14 +46,14 @@ const originPush = VueRouter.prototype.push
 const originReplace = VueRouter.prototype.replace
 VueRouter.prototype.push = function (location, onResolved, onRejected) {
   if (onResolved === undefined && onRejected === undefined) {
-    return originPush.call(this, location)
+    return originPush.call(this, location).catch(err => err)
   } else {
     return originPush.call(this, location, onRejected, onResolved)
   }
 }
 VueRouter.prototype.replace = function (location, onResolved, onRejected) {
   if (onResolved === undefined && onRejected === undefined) {
-    return originReplace.call(this, location)
+    return originReplace.call(this, location).catch(err => err)
   } else {
     return originReplace.call(this, location, onRejected, onResolved)
   }

@@ -57,15 +57,27 @@ export default {
   },
   methods:{
     toSearch(){
-      this.$router.push({
+      // this.$router.push({
+      //   name:'search',
+      //   query:{
+      //     keyword1:this.keyword.toUpperCase()
+      //   },
+      //   params:{
+      //     keyword:this.keyword || undefined
+      //   }
+      // })
+      let location = {
         name:'search',
-        query:{
-          keyword1:this.keyword.toUpperCase()
-        },
         params:{
           keyword:this.keyword || undefined
         }
-      })
+      }
+      // 点击三级分类的时候，也要关注是否有params参数
+      let {query} = this.$route
+      if(query){
+        location.query = query
+      }
+      this.$router.push(location)
     }
   }
 };
