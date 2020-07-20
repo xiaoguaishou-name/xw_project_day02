@@ -38,7 +38,12 @@
         </h1>
         <div class="searchArea">
           <form action="###" class="searchForm">
-            <input type="text" id="autocomplete" class="input-error input-xxlarge" v-model="keyword"/>
+            <input
+              type="text"
+              id="autocomplete"
+              class="input-error input-xxlarge"
+              v-model="keyword"
+            />
             <button class="sui-btn btn-xlarge btn-danger" type="button" @click="toSearch">搜索</button>
           </form>
         </div>
@@ -50,13 +55,16 @@
 <script>
 export default {
   name: "Header",
-  data(){
-    return{
-      keyword:''
-    }
+  data() {
+    return {
+      keyword: ""
+    };
   },
-  methods:{
-    toSearch(){
+  mounted() {
+    this.$bus.$on("clearKeyword", this.clearKeyword);
+  },
+  methods: {
+    toSearch() {
       // this.$router.push({
       //   name:'search',
       //   query:{
@@ -67,17 +75,25 @@ export default {
       //   }
       // })
       let location = {
-        name:'search',
-        params:{
-          keyword:this.keyword || undefined
+        name: "search",
+        params: {
+          keyword: this.keyword || undefined
         }
-      }
+      };
       // 点击三级分类的时候，也要关注是否有params参数
-      let {query} = this.$route
-      if(query){
-        location.query = query
+      let { query } = this.$route;
+      if (query) {
+        location.query = query;
       }
-      this.$router.push(location)
+      //看是否从首页去到search页
+      if (this.$route.path !== "/home") {
+        this.$router.replace(location);
+      } else {
+        this.$router.push(location);
+      }
+    },
+    clearKeyword() {
+      this.keyword = "";
     }
   }
 };

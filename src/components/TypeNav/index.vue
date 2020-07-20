@@ -30,7 +30,7 @@
                       <dt>
                         <a
                           href="javascript:;"
-                          :data-category1Id="c2.categoryId"
+                          :data-category2Id="c2.categoryId"
                           :data-categoryName="c2.categoryName"
                         >{{c2.categoryName}}</a>
                         <!-- 使用编程式导航，但效率还是不高，因为每个类别都添加了相同的点击事件，每个点击事件都有自己的回调函数 ，使用事件委派来处理-->
@@ -41,7 +41,7 @@
                         <em v-for="(c3,index) in c2.categoryChild" :key="c3.categoryId">
                           <a
                             href="javascript:;"
-                            :data-category1Id="c3.categoryId"
+                            :data-category3Id="c3.categoryId"
                             :data-categoryName="c3.categoryName"
                           >{{c3.categoryName}}</a>
                           <!-- <a href="javascript:;" @click="$router.push({name:'search',query:{categoryName:c3.categoryName,category3Id:c3.categoryId}})">{{c3.categoryName}}</a> -->
@@ -130,7 +130,12 @@ export default {
         if (params) {
           location.params = params;
         }
-        this.$router.push(location);
+        //看是否从首页去到search页
+        if(this.$route.path !== '/home'){
+          this.$router.replace(location);
+        }else{
+          this.$router.push(location);
+        } 
       }
     }
   },

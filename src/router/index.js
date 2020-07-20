@@ -5,9 +5,15 @@ import Home from '@/pages/Home'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import Search from '@/pages/Search'
+import Detail from '@/pages/Detail'
 export default new VueRouter({
 
-  routes: [{
+  routes: [
+    {
+      path: '/detail/:goodsId',
+      component: Detail
+    },
+    {
       path: '/home',
       component: Home
     },
@@ -38,7 +44,13 @@ export default new VueRouter({
       path: '/',
       redirect: '/home'
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    return {
+      x: 0,
+      y: 0
+    }
+  }
 })
 
 // //终极解决多次触发push或replace报错的问题
@@ -58,3 +70,4 @@ VueRouter.prototype.replace = function (location, onResolved, onRejected) {
     return originReplace.call(this, location, onRejected, onResolved)
   }
 }
+
