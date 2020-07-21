@@ -17,9 +17,9 @@
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom />
+          <Zoom :imgList="imgList"/>
           <!-- 小图列表 -->
-          <ImageList />
+          <ImageList :imgList="imgList"/>
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
@@ -68,19 +68,23 @@
               <div class="choosed"></div>
               <dl v-for="(item,index) in spuSaleAttrList" :key="index">
                 <dt class="title">{{item.saleAttrName}}</dt>
-                <dd changepirce="0" class="active" 
+                <dd changepirce="0" 
+                :class="{active:attrValue.isChecked === '1'}" 
                 v-for="(attrValue,index) in item.spuSaleAttrValueList" 
-                :key="attrValue.id">{{attrValue.saleAttrValueName}}</dd>
+                :key="attrValue.id"
+                @click="changeIsChecked(item.spuSaleAttrValueList,index)">
+                {{attrValue.saleAttrValueName}}
+                </dd>
               </dl>
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" />
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" v-model="skuNum"/>
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a href="javascript:" class="mins" @click="skuNum <= 1 ? 1 : skuNum--">-</a>
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <a href="javascript:" @click="toSuccess">加入购物车</a>
               </div>
             </div>
           </div>
@@ -325,16 +329,41 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "Detail",
+  data(){
+    return{
+      skuNum:1
+    }
+  },
   mounted() {
     this.getGoodsDetailInfo();
   },
   methods: {
     getGoodsDetailInfo() {
       this.$store.dispatch("getGoodsDetailInfo", this.$route.params.goodsId);
+    },
+    changeIsChecked(attrValueList,index){
+      //排他
+      attrValueList.forEach(item => {
+        item.isChecked = '0'
+      })
+      attrValueList[index].isChecked = '1'
+    },
+    async toSuccess(){
+      //先发请求，判断是否成功
+      //调用我们actions内部的异步函数，这个调用的返回值一定是个promise对象
+     try {
+      const result = await this.$store.dispatch('addOrUpdateShopCart',{skuId:this.skuInfo.id,skuNum:this.skuNum})
+      alert(result)
+      // 在添加成功跳转到添加成功页面前，把相应商品数据存储到sessionStorage中
+      sessionStorage.setItem('SKUINFO_KEY',JSON.stringify(this.skuInfo))
+      this.$router.push(`/addcartsuccess?skuNum=${this.skuNum}`)    //如果添加购物车成功，那么就跳转到添加购物车成功的页面
+     } catch (error) {
+      alert(error.message)
+     }
     }
   },
   computed: {
-    ...mapGetters(["categoryView", "skuInfo", "spuSaleAttrList"])
+    ...mapGetters(["categoryView", "skuInfo", "spuSaleAttrList",'imgList'])
   },
   components: {
     ImageList,

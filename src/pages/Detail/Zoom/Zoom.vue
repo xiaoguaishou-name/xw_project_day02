@@ -1,17 +1,66 @@
 <template>
   <div class="spec-preview">
-    <img src="../images/s1.png" />
-    <div class="event"></div>
+    <img :src="defaultImg.imgUrl" />
+    <div class="event" @mousemove="move"></div>
     <div class="big">
-      <img src="../images/s1.png" />
+      <img :src="defaultImg.imgUrl" ref="bigImg"/>
     </div>
-    <div class="mask"></div>
+    <div class="mask" ref="mask"></div>
   </div>
 </template>
 
 <script>
   export default {
     name: "Zoom",
+    props:['imgList'],
+    mounted(){
+      this.$bus.$on('changeDefaultIndex',this.changeDefaultIndex)
+    },
+    data(){
+      return{
+        defaultIndex:0
+      }
+    },
+    computed:{
+      defaultImg(){
+        if(this.imgList){
+          return this.imgList[this.defaultIndex] || {}
+        }else{
+          return []
+        }
+      }
+    },
+    methods:{
+      changeDefaultIndex(index){
+        this.defaultIndex = index
+      },
+      move(event){
+        let target = event.target     //事件源元素
+        let mouseX = event.offsetX   //鼠标相对事件源本身的x位置
+        let mouseY = event.offsetY   //鼠标相对事件源本身的y位置
+        let mask = this.$refs.mask
+        let bigImg = this.$refs.bigImg
+        //求mask走的位置
+        let maskX = mouseX - mask.offsetWidth / 2
+        let maskY = mouseY - mask.offsetHeight / 2
+        if(maskX < 0){
+          maskX = 0
+        }else if(maskX > target.clientWidth - mask.offsetWidth){
+          maskX = target.clientWidth - mask.offsetWidth
+        }
+         if(maskY < 0){
+          maskY = 0
+        }else if(maskY > target.clientHeight - mask.offsetHeight){
+          maskY = target.clientHeight - mask.offsetHeight
+        }
+        //设置mask位置
+        mask.style.left = maskX + 'px'
+        mask.style.top = maskY + 'px'
+        //计算大图位置
+        bigImg.style.left = -2 * maskX + 'px'
+        bigImg.style.top = -2 * maskY + 'px'
+      }
+    }
   }
 </script>
 
