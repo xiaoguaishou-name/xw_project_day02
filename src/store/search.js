@@ -27,9 +27,9 @@ const getters = {
     return state.goodsListInfo.trademarkList || []
   }
 }
-export default ({
+export default {
   state,
   mutations,
   actions,
   getters
-})
+}

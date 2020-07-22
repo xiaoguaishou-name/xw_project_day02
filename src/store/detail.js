@@ -1,8 +1,8 @@
 import {
- reqGoodsDetailInfo
+  reqGoodsDetailInfo
 } from '@/api'
 const state = {
- goodsDetailInfo:{}
+  goodsDetailInfo: {}
 }
 const mutations = {
   RECEIVEGOODSDETAILINFO(state, goodsDetailInfo) {
@@ -10,7 +10,9 @@ const mutations = {
   }
 }
 const actions = {
-  async getGoodsDetailInfo({ commit },skuId) {
+  async getGoodsDetailInfo({
+    commit
+  }, skuId) {
     const result = await reqGoodsDetailInfo(skuId)
     if (result.code === 200) {
       commit('RECEIVEGOODSDETAILINFO', result.data)
@@ -31,9 +33,9 @@ const getters = {
     return (state.goodsDetailInfo.skuInfo || {}).skuImageList
   }
 }
-export default ({
+export default {
   state,
   mutations,
   actions,
   getters
-})
+}
