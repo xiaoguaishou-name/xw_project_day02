@@ -5,8 +5,8 @@ import router from '@/router/index.js'
 import TypeNav from '@/components/TypeNav'
 import SliderLoop from '@/components/SliderLoop'
 import Pagination from '@/components/Pagination'
-
 import '@/mock/mockServer'
+import * as API from '@/api'
 Vue.config.productionTip = false
 Vue.component('TypeNav', TypeNav)
 Vue.component('SliderLoop', SliderLoop)
@@ -14,12 +14,13 @@ Vue.component('Pagination', Pagination)
 new Vue({
   beforeCreate() {
     Vue.prototype.$bus = this
+    Vue.prototype.$API = API
   },
-  render: h => h(App),
   el: '#app',
+  render: h => h(App),
   router,
-  store
+  store,
 })
 //测试请求
-// import * as API from '@/api'
+
 // API.reqGoodsList({})
