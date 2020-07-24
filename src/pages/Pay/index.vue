@@ -65,7 +65,8 @@
         <div class="hr"></div>
 
         <div class="submit">
-          <router-link class="btn" to="/paysuccess">立即支付</router-link>
+          <!-- <router-link class="btn" to="/paysuccess">立即支付</router-link> -->
+          <a href="javascript:;" class="btn" @click="pay">立即支付</a>
         </div>
         <div class="otherpay">
           <div class="step-tit">
@@ -82,11 +83,13 @@
 </template>
 
 <script>
+import QRCode from "qrcode";
   export default {
     name: 'Pay',
     data(){
       return{
-        orderInfo:{}
+        orderInfo:{},
+        status:0     //支付状态码
       }
     },
     mounted(){
@@ -97,6 +100,53 @@
         const result = await this.$API.reqOrdeInfo(this.$route.query.orderNo)
         if(result.code === 200){
           this.orderInfo = result.data
+        }
+      },
+      async pay(){
+        try {
+          const imgUrl = await QRCode.toDataURL(this.orderInfo.codeUrl)    //把支付链接信息转化为二维码图片的路径
+          this.$alert(`<img src="${imgUrl}" />`, "请使用微信扫码支付",{
+            dangerouslyUseHTMLString:true,  //是否将 message 属性作为 HTML 片段处理
+            showClose:false,  //是否显示右上角x
+            showCancelButton:true,   //取消按钮是否显示
+            cancelButtonText:"支付中遇到问题" , //取消按钮显示文本内容
+            confirmButtonText:"我已成功支付",  //确定按钮显示文本内容
+            center:true,  //文本内容居中
+            beforeClose:(action,instance,done)=>{
+              if(action === 'confirm'){
+                if(this.status === 200){
+                  clearInterval(this.timer)
+                  this.timer = null
+                  this.$router.push('/paysuccess')
+                  done()
+                }else{
+                  this.$message.warning('衰仔，不给钱想白嫖吗？')
+                }
+              }else if(action === 'cancel'){
+                clearInterval(this.timer)
+                this.timer = null
+                this.$message.success('请联系客服小姐姐')
+                done()
+              }
+            }
+          })  //打括号里面放置配置对象
+          .then(()=>{})
+          .catch(()=>{})
+        } catch (error) {
+          this.$message.error(error.message)
+        }
+        if(!this.timer){
+          this.timer = setInterval(async ()=>{
+            const result = await this.$API.reqPayStatus(this.orderInfo.orderId)
+            if(result.code === 200){
+              //支付成功的状态码保存一下,为了用户点击成功支付按钮的时候去判断
+              this.status = 200
+              clearInterval(this.timer)
+              this.timer = null
+              this.$router.push('/paysuccess')
+              this.$msgbox.close()  //手动关闭消息盒子
+            }
+          },3000)
         }
       }
     }

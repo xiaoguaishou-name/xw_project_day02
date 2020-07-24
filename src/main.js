@@ -6,6 +6,13 @@ import TypeNav from '@/components/TypeNav'
 import SliderLoop from '@/components/SliderLoop'
 import Pagination from '@/components/Pagination'
 import '@/mock/mockServer'
+import {
+  MessageBox,
+  Message
+} from 'element-ui';
+Vue.prototype.$msgbox = MessageBox;
+Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$message = Message;
 import * as API from '@/api'
 Vue.config.productionTip = false
 Vue.component('TypeNav', TypeNav)
